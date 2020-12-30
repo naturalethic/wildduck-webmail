@@ -17,10 +17,11 @@ RUN npm install && npm run bowerdeps
 
 # ---
 from alpine:3.9 as app
-RUN apk add --no-cache nodejs
+RUN apk add --no-cache nodejs dumb-init
 ENV APP_PATH /app
+ENV CMD_ARGS=""
 WORKDIR ${APP_PATH}
 COPY --from=builder ${APP_PATH}/ ${APP_PATH}/
 COPY --from=builder ${APP_PATH}/config/default.toml /etc/wildduck/www.toml
-ENTRYPOINT ["node", "server.js"]
-CMD ["--config=\"/etc/wildduck/www.toml\""]
+ENTRYPOINT ["/usr/bin/dumb-init", "--"]
+CMD node server.js --config=/etc/wildduck/www.toml ${CMD_ARGS}
